@@ -26,6 +26,7 @@ class PyMainWindow(QMainWindow, Ui_MainWindow):
         # === Q1 ===
         self.opencv = OpenCv()
         self.opencv.Q1()
+        self.q1_3_img_idx = 0
 
     """
     ref: https://docs.opencv.org/3.4/dc/dbb/tutorial_py_calibration.html
@@ -77,9 +78,11 @@ class PyMainWindow(QMainWindow, Ui_MainWindow):
     
     def find_extrinsic(self):
         print('find extrinsic')
+        self.opencv.Q1_3(self.q1_3_img_idx)
 
     def select_image(self, text):
         print('select image: {}'.format(str(int(text)+1)))
+        self.q1_3_img_idx = int(text)
         
 
 class OpenCv(object):
@@ -139,10 +142,19 @@ class OpenCv(object):
         cv2.destroyAllWindows()
     
     def Q1_2(self):
-        print('Q1_2')
+        print('Q1_2: 15.bmp')
         ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(self.objpoints, self.imgpoints, self.gray_img[14].shape[::-1], None, None)
         print(mtx)
 
+    def Q1_3(self, img_idx):
+        print('Q1_3: '+str(img_idx+1)+'.bmp')
+        ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(self.objpoints, self.imgpoints, self.gray_img[img_idx].shape[::-1], None, None)
+        print(cv2.Rodrigues(rvecs[img_idx])[0])
+        print(tvecs[img_idx])
+
+    def Q1_4(self):
+        ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(self.objpoints, self.imgpoints, self.gray_img[14].shape[::-1], None, None)
+        
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
