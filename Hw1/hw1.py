@@ -19,6 +19,9 @@ class PyMainWindow(QMainWindow, Ui_MainWindow):
         self.pushButton_2.clicked.connect(self.find_intrinsic)
         self.pushButton_3.clicked.connect(self.find_distortion)
         self.pushButton_4.clicked.connect(self.find_extrinsic)
+        self.pushButton_5.clicked.connect(self.augmented_reality)
+        self.pushButton_6.clicked.connect(self.stereo_disparity)
+
         # === combo box change action ===
         self.comboBox.currentIndexChanged.connect(self.select_image)
         self.show()
@@ -34,40 +37,6 @@ class PyMainWindow(QMainWindow, Ui_MainWindow):
     def find_corner(self):
         print('find corner')
         self.opencv.Q1_1()
-        # # termination criteria
-        # criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
-
-        # # Prepare object points, like (0, 0, 0), (1, 0, 0), ..., (7, 10, 0)
-        # objp = np.zeros((8*11, 3), np.float32)
-        # objp[:, :2] = np.mgrid[0:8, 0:11].T.reshape(-1, 2)
-
-        # # Arrays to store object points and image point from all the image
-        # objpoints = []  # 3d point in real world space
-        # imgpoints = []  # 2d points in image plane
-        
-        # for f_idx in range(1, 16):
-        #     # Read image and converty to gray image
-        #     img = cv2.imread('./Q1_Image/'+str(f_idx)+'.bmp')
-        #     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            
-        #     # Find the chess board corners
-        #     ret, corners = cv2.findChessboardCorners(gray, (8, 11), None)
-            
-        #     # If found, add object points, image points
-        #     if ret == True:
-        #         objpoints.append(objp)
-
-        #         corners2 = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
-        #         imgpoints.append(corners)
-
-        #         # Draw and display the corner
-        #         cv2.drawChessboardCorners(img, (8, 11), corners, ret)
-
-        #         cv2.namedWindow('1.1 Find Corners: '+str(f_idx)+'.bmp', cv2.WINDOW_NORMAL)
-        #         cv2.imshow('1.1 Find Corners: '+str(f_idx)+'.bmp', img)
-        #         # cv2.waitKey(0)
-        # cv2.waitKey(0)
-        # cv2.destroyAllWindows()
 
     def find_intrinsic(self):
         print('find intrinsic')
@@ -84,6 +53,12 @@ class PyMainWindow(QMainWindow, Ui_MainWindow):
     def select_image(self, text):
         print('select image: {}'.format(str(int(text)+1)))
         self.q1_3_img_idx = int(text)
+
+    def augmented_reality(self):
+        print('augmented reality')
+
+    def stereo_disparity(self):
+        print('stereo disparity')
         
 
 class OpenCv(object):
@@ -103,11 +78,7 @@ class OpenCv(object):
 
         # Prepare object points, like (0, 0, 0), (1, 0, 0), ..., (7, 10, 0)
         objp = np.zeros((8*11, 3), np.float32)
-        objp[:, :2] = np.mgrid[0:8, 0:11].T.reshape(-1, 2)
-
-        # # Arrays to store object points and image point from all the image
-        # objpoints = []  # 3d point in real world space
-        # imgpoints = []  # 2d points in image plane
+        objp[:, :2] = np.mgrid[0:11, 0:8].T.reshape(-1, 2)
         
         for f_idx in range(1, 16):
             print(f_idx)
@@ -117,17 +88,15 @@ class OpenCv(object):
             self.gray_img[f_idx-1] = gray
             
             # Find the chess board corners
-            ret, corners = cv2.findChessboardCorners(gray, (8, 11), None)
+            ret, corners = cv2.findChessboardCorners(gray, (11, 8), None)
             
             # If found, add object points, image points
             if ret == True:
                 self.objpoints.append(objp)
-
-                corners2 = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
                 self.imgpoints.append(corners)
 
                 # Draw and display the corner
-                cv2.drawChessboardCorners(img, (8, 11), corners, ret)
+                cv2.drawChessboardCorners(img, (11, 8), corners, ret)
 
                 # save corner images
                 self.corner_img[f_idx-1] = img
@@ -150,11 +119,13 @@ class OpenCv(object):
     def Q1_3(self, img_idx):
         print('Q1_3: '+str(img_idx+1)+'.bmp')
         ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(self.objpoints, self.imgpoints, self.gray_img[img_idx].shape[::-1], None, None)
-        print(cv2.Rodrigues(rvecs[img_idx])[0])
-        print(tvecs[img_idx])
+        R = cv2.Rodrigues(rvecs[img_idx])[0]
+        t = tvecs[img_idx]
+        extrinsic_matrix = np.hstack([R, t])
+        print(extrinsic_matrix)
 
     def Q1_4(self):
-        ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(self.objpoints, self.imgpoints, self.gray_img[14].shape[::-1], None, None)
+        ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(self.objpoints, self.imgpoints, self.gray_img[0].shape[::-1], None, None)
         print(dist)
         
 
