@@ -75,6 +75,7 @@ class PyMainWindow(QMainWindow, Ui_MainWindow):
 
     def find_distortion(self):
         print('find distortion')
+        self.opencv.Q1_4()
     
     def find_extrinsic(self):
         print('find extrinsic')
@@ -154,6 +155,7 @@ class OpenCv(object):
 
     def Q1_4(self):
         ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(self.objpoints, self.imgpoints, self.gray_img[14].shape[::-1], None, None)
+        print(dist)
         
 
 if __name__ == '__main__':
