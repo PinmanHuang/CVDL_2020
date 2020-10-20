@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>492</width>
-    <height>397</height>
+    <width>1021</width>
+    <height>400</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
       <x>30</x>
       <y>30</y>
       <width>431</width>
-      <height>241</height>
+      <height>311</height>
      </rect>
     </property>
     <property name="font">
@@ -35,7 +35,7 @@
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>30</y>
+       <y>50</y>
        <width>141</width>
        <height>41</height>
       </rect>
@@ -53,7 +53,7 @@
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>100</y>
+       <y>150</y>
        <width>141</width>
        <height>41</height>
       </rect>
@@ -71,7 +71,7 @@
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>170</y>
+       <y>240</y>
        <width>141</width>
        <height>41</height>
       </rect>
@@ -91,7 +91,7 @@
        <x>219</x>
        <y>39</y>
        <width>191</width>
-       <height>171</height>
+       <height>241</height>
       </rect>
      </property>
      <property name="title">
@@ -101,7 +101,7 @@
       <property name="geometry">
        <rect>
         <x>30</x>
-        <y>30</y>
+        <y>60</y>
         <width>91</width>
         <height>16</height>
        </rect>
@@ -114,8 +114,8 @@
       <property name="geometry">
        <rect>
         <x>30</x>
-        <y>60</y>
-        <width>69</width>
+        <y>80</y>
+        <width>141</width>
         <height>22</height>
        </rect>
       </property>
@@ -199,7 +199,7 @@
       <property name="geometry">
        <rect>
         <x>30</x>
-        <y>110</y>
+        <y>150</y>
         <width>141</width>
         <height>41</height>
        </rect>
@@ -218,10 +218,10 @@
    <widget class="QGroupBox" name="groupBox_3">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>280</y>
-      <width>201</width>
-      <height>91</height>
+      <x>490</x>
+      <y>30</y>
+      <width>211</width>
+      <height>71</height>
      </rect>
     </property>
     <property name="font">
@@ -236,8 +236,8 @@
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>30</y>
-       <width>141</width>
+       <y>20</y>
+       <width>161</width>
        <height>41</height>
       </rect>
      </property>
@@ -249,10 +249,10 @@
    <widget class="QGroupBox" name="groupBox_4">
     <property name="geometry">
      <rect>
-      <x>250</x>
-      <y>280</y>
+      <x>490</x>
+      <y>110</y>
       <width>211</width>
-      <height>91</height>
+      <height>71</height>
      </rect>
     </property>
     <property name="font">
@@ -267,14 +267,249 @@
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>30</y>
-       <width>141</width>
+       <y>20</y>
+       <width>161</width>
        <height>41</height>
       </rect>
      </property>
      <property name="text">
       <string>3.1 Stereo Disparity Map</string>
      </property>
+    </widget>
+    <widget class="QGroupBox" name="groupBox_5">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>70</y>
+       <width>211</width>
+       <height>71</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="title">
+      <string>3. Stereo Disparity Map</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_6">
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>190</y>
+      <width>211</width>
+      <height>151</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="title">
+     <string>4. SIFT</string>
+    </property>
+    <widget class="QPushButton" name="pushButton_8">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>30</y>
+       <width>161</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>4.1 Keypoints</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_9">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>90</y>
+       <width>161</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>4.2 Matched keypoints</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_7">
+    <property name="geometry">
+     <rect>
+      <x>730</x>
+      <y>30</y>
+      <width>231</width>
+      <height>311</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>5. Training Cifar10 Classifier</string>
+    </property>
+    <widget class="QPushButton" name="pushButton_10">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>20</y>
+       <width>161</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>5.1 Show Train Images</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_11">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>70</y>
+       <width>161</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>5.2 Show Hyperparameters</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_12">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>120</y>
+       <width>161</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>5.3 Show Model Strucuture</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_13">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>170</y>
+       <width>161</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>5.4 Show Accuracy</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_14">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>250</y>
+       <width>161</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>5.5 Test</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="comboBox_2">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>220</y>
+       <width>161</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text">
+       <string>1</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>2</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>3</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>4</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>5</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>6</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>7</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>8</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>9</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>10</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>11</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>12</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>13</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>14</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>15</string>
+      </property>
+     </item>
     </widget>
    </widget>
   </widget>

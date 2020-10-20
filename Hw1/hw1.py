@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow
 import sys
 import cv2
 import numpy as np
+from matplotlib import pyplot as plt
 
 class PyMainWindow(QMainWindow, Ui_MainWindow):
     
@@ -21,6 +22,13 @@ class PyMainWindow(QMainWindow, Ui_MainWindow):
         self.pushButton_4.clicked.connect(self.find_extrinsic)
         self.pushButton_5.clicked.connect(self.augmented_reality)
         self.pushButton_6.clicked.connect(self.stereo_disparity)
+        self.pushButton_8.clicked.connect(self.keypoints)
+        self.pushButton_9.clicked.connect(self.matched_keypoints)
+        self.pushButton_10.clicked.connect(self.show_train_images)
+        self.pushButton_11.clicked.connect(self.show_hyperparameters)
+        self.pushButton_12.clicked.connect(self.show_model_strucuture)
+        self.pushButton_13.clicked.connect(self.show_accuracy)
+        self.pushButton_14.clicked.connect(self.test)
 
         # === combo box change action ===
         self.comboBox.currentIndexChanged.connect(self.select_image)
@@ -68,7 +76,41 @@ class PyMainWindow(QMainWindow, Ui_MainWindow):
         print('Stereo disparity')
         opencv = OpenCv()
         opencv.Q3()
-        
+
+    def keypoints(self):
+        print('Ketpoints')
+        opencv = OpenCv()
+        opencv.Q4_1()
+
+    def matched_keypoints(self):
+        print('Matched keypoints')
+        opencv = OpenCv()
+        opencv.Q4_2()
+
+    def show_train_images(self):
+        print('Show train images')
+        opencv = OpenCv()
+        opencv.Q5_1()
+
+    def show_hyperparameters(self):
+        print('Show hyperparameters')
+        opencv = OpenCv()
+        opencv.Q5_2()
+    
+    def show_model_strucuture(self):
+        print('Show model strucuture')
+        opencv = OpenCv()
+        opencv.Q5_3()
+    
+    def show_accuracy(self):
+        print('Show accuracy')
+        opencv = OpenCv()
+        opencv.Q5_4()
+
+    def test(self):
+        print('Test')
+        opencv = OpenCv()
+        opencv.Q5_5()
 
 class OpenCv(object):
     def __init__(self):
@@ -182,7 +224,115 @@ class OpenCv(object):
         cv2.destroyAllWindows()
 
     def Q3(self):
-        print('Q3')        
+        print('Q3')
+        imgL = cv2.imread('./Q3_Image/'+'imL.png', 0)
+        imgR = cv2.imread('./Q3_Image/'+'imR.png', 0)
+
+        stereo = cv2.StereoBM_create(numDisparities=16, blockSize=15)
+        disparity = stereo.compute(imgL, imgR)
+        plt.imshow(disparity,'gray')
+        plt.show()
+    
+    def Q4_1(self):
+        print('Q4_1')
+        img1 = cv2.imread('./Q4_Image/'+'Aerial1.jpg', 0)
+        img2 = cv2.imread('./Q4_Image/'+'Aerial2.jpg', 0)
+        
+        # Initiate SIFT detector
+        sift = cv2.xfeatures2d.SIFT_create()
+        # Find the keypoints and descriptors with SIFT
+        kp1, des1 = sift.detectAndCompute(img1, None)
+        kp2, des2 = sift.detectAndCompute(img2, None)
+        # Sort keypoints in the order of their size, and select the first 6
+        # Size is the region around a point of interest that is used to form the description of the keypoint
+        kp1_knn = sorted(kp1, key=lambda x: x.size, reverse=True)[:7]
+        kp2_knn = sorted(kp2, key=lambda x: x.size, reverse=True)[:7]
+        print('kp1_knn')
+        for i in range(0, 7):
+            print('idx: {}, size: {}'.format([x.size for x in kp1].index(kp1_knn[i].size), kp1_knn[i].size))
+        print('kp2_knn')
+        for i in range(0, 7):
+            print('idx: {}, size: {}'.format([x.size for x in kp2].index(kp2_knn[i].size), kp2_knn[i].size))
+        # Draw keypoints
+        img1_key = cv2.drawKeypoints(img1, kp1_knn, img1)
+        img2_key = cv2.drawKeypoints(img2, kp2_knn, img2)
+
+        cv2.namedWindow('Q3_1 Aerial1', cv2.WINDOW_NORMAL)
+        cv2.namedWindow('Q3_1 Aerial2', cv2.WINDOW_NORMAL)
+        # Show image
+        cv2.imshow('Q3_1 Aerial1', img1_key)
+        cv2.imshow('Q3_1 Aerial2', img2_key)
+        cv2.waitKey(0)
+        # Write image
+        cv2.imwrite('FeatureAerial1.jpg', img1_key)
+        cv2.imwrite('FeatureAerial2.jpg', img2_key)
+        cv2.destroyAllWindows()
+
+    def Q4_2(self):
+        print('Q4_2')
+        img1 = cv2.imread('./Q4_Image/'+'Aerial1.jpg',0)
+        img2 = cv2.imread('./Q4_Image/'+'Aerial2.jpg',0)
+
+        # Initiate SIFT detector
+        sift = cv2.xfeatures2d.SIFT_create()
+        # Find the keypoints and descriptors with SIFT
+        kp1, des1 = sift.detectAndCompute(img1, None)
+        kp2, des2 = sift.detectAndCompute(img2, None)
+        # Sort keypoints in the order of their size, and select the first 6
+        # Size is the region around a point of interest that is used to form the description of the keypoint
+        kp1_knn = sorted(kp1, key=lambda x: x.size, reverse=True)[:7]
+        kp2_knn = sorted(kp2, key=lambda x: x.size, reverse=True)[:7]
+        print('kp1_knn')
+        for i in range(0, 7):
+            print('idx: {}, size: {}'.format([x.size for x in kp1].index(kp1_knn[i].size), kp1_knn[i].size))
+        print('kp2_knn')
+        for i in range(0, 7):
+            print('idx: {}, size: {}'.format([x.size for x in kp2].index(kp2_knn[i].size), kp2_knn[i].size))
+        # Delete duplicated keypoints
+        del kp1_knn[1]
+        del kp2_knn[2]
+
+        # Select the first 6 des according keypoints
+        des1_knn = []
+        des2_knn = []
+        for i in range(len(kp1_knn)):
+            idx1 = [x.size for x in kp1].index(kp1_knn[i].size)
+            idx2 = [y.size for y in kp2].index(kp2_knn[i].size)
+            des1_knn.append(des1[idx1])
+            des2_knn.append(des2[idx2])
+        des1_knn = np.asarray(des1_knn)
+        des2_knn = np.asarray(des2_knn)
+        
+        # Create BFMatcher object
+        bf = cv2.BFMatcher()
+        # Match descriptors
+        matches = bf.knnMatch(des1_knn, des2_knn, k=2)
+        # Apply ratio test
+        good = []
+        for m,n in matches:
+            if m.distance < 0.75*n.distance:
+                good.append([m])
+        # cv2.drawMatchesKnn expects list of lists as matches.
+        img3 = cv2.drawMatchesKnn(img1, kp1_knn, img2, kp2_knn, good, None, flags=2)
+        cv2.namedWindow('Q3_2', cv2.WINDOW_NORMAL)
+        cv2.imshow('Q3_2', img3)
+        cv2.waitKey()
+        cv2.destroyAllWindows()
+
+    def Q5_1(self):
+        print('Q5_1')
+    
+    def Q5_2(self):
+        print('Q5_2')
+    
+    def Q5_3(self):
+        print('Q5_3')
+    
+    def Q5_4(self):
+        print('Q5_4')
+
+    def Q5_5(self):
+        print('Q5_5')
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
