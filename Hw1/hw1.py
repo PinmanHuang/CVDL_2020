@@ -9,6 +9,16 @@ import sys
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
+# Q5_1
+import pickle
+import random
+# Q5_3
+# from torchvision import models
+from torchsummary import summary
+# Q5
+import torch
+import torch.nn as nn
+import torch.optim as optim
 
 class PyMainWindow(QMainWindow, Ui_MainWindow):
     
@@ -111,6 +121,90 @@ class PyMainWindow(QMainWindow, Ui_MainWindow):
         print('Test')
         opencv = OpenCv()
         opencv.Q5_5()
+    
+class VGG16(nn.Module):
+    def __init__(self, num_classes=10):
+        super(VGG16, self).__init__()
+        self.features = nn.Sequential(
+            #1
+            nn.Conv2d(3, 64, kernel_size=3, padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(True),
+            #2
+            nn.Conv2d(64, 64, kernel_size=3, padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(True),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            #3
+            nn.Conv2d(64, 128, kernel_size=3, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(True),
+            #4
+            nn.Conv2d(128, 128, kernel_size=3, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(True),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            #5
+            nn.Conv2d(128, 256, kernel_size=3, padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(True),
+            #6
+            nn.Conv2d(256, 256, kernel_size=3, padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(True),
+            #7
+            nn.Conv2d(256, 256, kernel_size=3, padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(True),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            #8
+            nn.Conv2d(256, 512, kernel_size=3, padding=1),
+            nn.BatchNorm2d(512),
+            nn.ReLU(True),
+            #9
+            nn.Conv2d(512, 512, kernel_size=3, padding=1),
+            nn.BatchNorm2d(512),
+            nn.ReLU(True),
+            #10
+            nn.Conv2d(512, 512, kernel_size=3, padding=1),
+            nn.BatchNorm2d(512),
+            nn.ReLU(True),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            #11
+            nn.Conv2d(512, 512, kernel_size=3, padding=1),
+            nn.BatchNorm2d(512),
+            nn.ReLU(True),
+            #12
+            nn.Conv2d(512, 512, kernel_size=3, padding=1),
+            nn.BatchNorm2d(512),
+            nn.ReLU(True),
+            #13
+            nn.Conv2d(512, 512, kernel_size=3, padding=1),
+            nn.BatchNorm2d(512),
+            nn.ReLU(True),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.AvgPool2d(kernel_size=1, stride=1),
+        )
+        self.classifier = nn.Sequential(
+            #14
+            nn.Linear(512, 4096),
+            nn.ReLU(True),
+            nn.Dropout(),
+            #15
+            nn.Linear(4096, 4096),
+            nn.ReLU(True),
+            nn.Dropout(),
+            #16
+            nn.Linear(4096, num_classes),
+        )
+
+    def forward(self, x):
+        out = self.features(x)
+        out = torch.flatten(out, 1)
+        # out = out.view(out.size(0), -1)
+        out = self.classifier(out)
+        return out
+
 
 class OpenCv(object):
     def __init__(self):
@@ -146,7 +240,6 @@ class OpenCv(object):
                 # save corner images
                 self.corner_img[f_idx-1] = img
             
-
     def Q1_1(self):
         print('Q1_1')
         for f_idx in range(1, 16):
@@ -302,7 +395,7 @@ class OpenCv(object):
             des2_knn.append(des2[idx2])
         des1_knn = np.asarray(des1_knn)
         des2_knn = np.asarray(des2_knn)
-        
+
         # Create BFMatcher object
         bf = cv2.BFMatcher()
         # Match descriptors
@@ -319,14 +412,51 @@ class OpenCv(object):
         cv2.waitKey()
         cv2.destroyAllWindows()
 
+    '''
+    batches.meta: size is 10,
+                  0 to 9 class,
+                  each value is a label to an image
+    data_batch_1 ~ data_batch_5: size is 10000*3072 (32*32*3 RGB),
+                                 uint8 ndarray,
+                                 each row is an image(32*32)
+    '''
     def Q5_1(self):
         print('Q5_1')
+
+        # Load data
+        with open('./cifar-10-batches-py/batches.meta', 'rb') as fo:
+            label_dict = pickle.load(fo, encoding='bytes')
+        labels = label_dict[b'label_names']
+        with open('./cifar-10-batches-py/data_batch_'+str(random.randint(1, 5)), 'rb') as fo:
+            data_dict = pickle.load(fo, encoding='bytes')
+        X = data_dict[b'data']
+        Y = data_dict[b'labels']
+        # Generate random sample image index
+        select_img_idx = random.sample(range(10000), 10)
+
+        # Show images
+        fig = plt.figure()
+        ax = []
+        for i in range(10):
+            img_data = X[select_img_idx[i], :]                      # size is 3072
+            img = img_data.reshape(3, 32, 32).transpose([1, 2, 0])  # reshape image to 3 tunnel(RGB)
+            ax.append(fig.add_subplot(2, 5, i + 1))
+            ax[-1].set_title(labels[Y[select_img_idx[i]]].decode())
+            plt.imshow(img)
+        plt.show()
+
     
     def Q5_2(self):
         print('Q5_2')
+        print('hyperparameters:\nbatch size: 32\nlearning rate: 0.001\noptimizer: SGD')
     
     def Q5_3(self):
         print('Q5_3')
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        model = VGG16().to(device)
+        # model = models.vgg16()
+        summary(model, (3, 32, 32))
+
     
     def Q5_4(self):
         print('Q5_4')
