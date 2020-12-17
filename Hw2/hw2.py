@@ -8,6 +8,8 @@ from PyQt5.QtWidgets import QApplication, QMainWindow
 import sys
 import cv2
 import numpy as np
+# Q3
+import cv2.aruco as aruco
 from matplotlib import pyplot as plt
 
 class PyMainWindow(QMainWindow, Ui_MainWindow):
@@ -19,6 +21,7 @@ class PyMainWindow(QMainWindow, Ui_MainWindow):
         self.pushButton.clicked.connect(self.bg_sub)
         self.pushButton_2.clicked.connect(self.preprocessing)
         self.pushButton_3.clicked.connect(self.tracking)
+        self.pushButton_4.clicked.connect(self.transform)
 
     def bg_sub(self):
         opencv = OpenCv()
@@ -31,6 +34,10 @@ class PyMainWindow(QMainWindow, Ui_MainWindow):
     def tracking(self):
         opencv = OpenCv()
         opencv.Q2_2()
+
+    def transform(self):
+        opencv = OpenCv()
+        opencv.Q3_1()
 
 class OpenCv(object):
     def __init__(self):
@@ -191,6 +198,93 @@ class OpenCv(object):
 
         cap.release()
         cv2.destroyAllWindows()
+
+    def Q3_1(self):
+        cv2.namedWindow('3.1 Perspective Transform', cv2.WINDOW_NORMAL)
+        # read image
+        im_src = cv2.imread("./Q3_Image/rl.jpg")
+        size = im_src.shape
+        pts_src = np.array([
+            [0, 0],
+            [size[1], 0],
+            [size[1], size[0]],
+            [0, size[0]]
+        ], dtype=float)
+
+        # capture video and get fps
+        cap = cv2.VideoCapture('./Q3_Image/test4perspective.mp4')
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        # get 1st frame of video
+        ret, frame = cap.read()
+        # Define the codec and create VideoWriter object
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        out = cv2.VideoWriter('./Q3_Result/3_1_result.mp4', fourcc, 20.0, (frame.shape[1], frame.shape[0]))
+
+        while(cap.isOpened()):
+            # get frames of video and convert to gray
+            ret, frame = cap.read()
+            if not ret:
+                break
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+            # reading the four code and get its idx and corner
+            aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_250)
+            arucoParameters = aruco.DetectorParameters_create()
+            corners, ids, rejectedImgPoints = aruco.detectMarkers(
+                gray,
+                aruco_dict,
+                parameters = arucoParameters
+            )
+
+            # doesn't have four corners
+            if len(corners) != 4:
+                continue
+
+            # have four corners
+            if np.all(ids != None):
+                # index of each markers
+                idx_23 = np.where(ids==23)[0][0]
+                idx_25 = np.where(ids==25)[0][0]
+                idx_30 = np.where(ids==30)[0][0]
+                idx_33 = np.where(ids==33)[0][0]
+                # get four point location
+                p1 = (corners[idx_25][0][1][0], corners[idx_25][0][1][1])
+                p2 = (corners[idx_33][0][2][0], corners[idx_33][0][2][1])
+                p3 = (corners[idx_30][0][0][0], corners[idx_30][0][0][1])
+                p4 = (corners[idx_23][0][0][0], corners[idx_23][0][0][1])
+                # calculate distance and scale the point location
+                distance = np.linalg.norm(np.subtract(p1, p2))
+                scaling = round(0.02 * distance)
+                pts_dst = np.array([
+                    [p1[0] - scaling, p1[1] - scaling],
+                    [p2[0] + scaling, p2[1] - scaling],
+                    [p3[0] + scaling, p3[1] + scaling],
+                    [p4[0] - scaling, p4[1] + scaling]
+                ])
+
+                # frame image
+                im_dst = frame
+
+                # find homography and warp perspective
+                h, status = cv2.findHomography(pts_src, pts_dst)
+                temp = cv2.warpPerspective(im_src, h, (im_dst.shape[1], im_dst.shape[0]))
+                
+                # draw
+                cv2.fillConvexPoly(im_dst, pts_dst.astype(int), 0, 16)
+                im_dst = im_dst + temp
+                out.write(im_dst)
+                cv2.imshow('3.1 Perspective Transform', im_dst)
+            
+            if cv2.waitKey(int(1000/fps)) & 0xFF == ord('q'):
+                break
+        
+        cap.release()
+        out.release()
+        cv2.destroyAllWindows()
+
+
+
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
