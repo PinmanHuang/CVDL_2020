@@ -11,6 +11,9 @@ import numpy as np
 # Q3
 import cv2.aruco as aruco
 from matplotlib import pyplot as plt
+# Q4
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import normalize
 
 class PyMainWindow(QMainWindow, Ui_MainWindow):
 
@@ -22,6 +25,8 @@ class PyMainWindow(QMainWindow, Ui_MainWindow):
         self.pushButton_2.clicked.connect(self.preprocessing)
         self.pushButton_3.clicked.connect(self.tracking)
         self.pushButton_4.clicked.connect(self.transform)
+        self.pushButton_5.clicked.connect(self.reconstruction)
+        self.pushButton_6.clicked.connect(self.error)
 
     def bg_sub(self):
         opencv = OpenCv()
@@ -38,6 +43,14 @@ class PyMainWindow(QMainWindow, Ui_MainWindow):
     def transform(self):
         opencv = OpenCv()
         opencv.Q3_1()
+
+    def reconstruction(self):
+        opencv = OpenCv()
+        opencv.Q4_1()
+    
+    def error(self):
+        opencv = OpenCv()
+        opencv.Q4_2()
 
 class OpenCv(object):
     def __init__(self):
@@ -281,10 +294,106 @@ class OpenCv(object):
         cap.release()
         out.release()
         cv2.destroyAllWindows()
+    
+    def norm(self, img):
+        img = img.copy()
+        img -= np.min(img)
+        img /= np.max(img)
+        img *= 255.
+        return np.uint8(img)
 
+    def reconstruction(self, img):
+        # split 3 channels
+        b, g, r = cv2.split(img)
+        # PCA
+        pca = PCA(25)
+        # b
+        # b_norm = normalize(b)
+        lower_dimension_b = pca.fit_transform(b)
+        approximation_b = pca.inverse_transform(lower_dimension_b)
+        # g
+        # g_norm = normalize(g)
+        lower_dimension_g = pca.fit_transform(g)
+        approximation_g = pca.inverse_transform(lower_dimension_g)
+        # r
+        # r_norm = normalize(r)
+        lower_dimension_r = pca.fit_transform(r)
+        approximation_r = pca.inverse_transform(lower_dimension_r)
+        
+        # clip
+        clip_b = np.clip(approximation_b, a_min = 0, a_max = 255)
+        clip_g = np.clip(approximation_g, a_min = 0, a_max = 255)
+        clip_r = np.clip(approximation_r, a_min = 0, a_max = 255)
+        # merge
+        n_img = (cv2.merge([clip_b, clip_g, clip_r])).astype(np.uint8)
+        # n_img = (np.dstack((approximation_b, approximation_g, approximation_r))).astype(np.uint8)
+        # n_img = (cv2.merge([approximation_b, approximation_g, approximation_r])).astype(int)
+        # n_img = cv2.normalize(n_img, None, 0, 255, cv2.NORM_MINMAX)
+        # np_img = n_img.astype(int)
+        # n_img = norm(np.float32(n_img))
+        '''
+        X = img.reshape((100, -1))
+        pca = PCA(25)
+        lower_dimension = pca.fit_transform(X)
+        approximation = pca.inverse_transform(lower_dimension)
 
+        approximation = approximation.reshape(100, 100, 3)
+        n_img = norm_image(approximation)
+        '''
+        return n_img
 
+    def Q4_1(self):
+        fig = plt.figure(figsize=(18, 4))
+        for idx in range(1, 18, 1):
+            # ====== i ======
+            img = cv2.imread('./Q4_Image/'+str(idx)+'.jpg')[:, :, ::-1]
+            n_img = self.reconstruction(img)
+            # plot
+            # origin image
+            plt.subplot(4, 17, idx)
+            plt.xticks([])
+            plt.yticks([])
+            plt.imshow(img)
+            # reconstruction image
+            plt.subplot(4, 17, idx + 17)
+            plt.xticks([])
+            plt.yticks([])
+            plt.imshow(n_img)
+            # ===============
 
+            # ====== i+17 ======
+            img = cv2.imread('./Q4_Image/'+str(idx + 17)+'.jpg')[:, :, ::-1]
+            n_img = self.reconstruction(img)
+            # plot
+            # origin image
+            plt.subplot(4, 17, idx + 34)
+            plt.xticks([])
+            plt.yticks([])
+            plt.imshow(img)
+            # reconstruction image
+            plt.subplot(4, 17, idx + 51)
+            plt.xticks([])
+            plt.yticks([])
+            plt.imshow(n_img)
+            # ==================
+        fig.text(0, 0.9, 'Original', va='center', rotation='vertical')
+        fig.text(0, 0.65, 'Reconstruction', va='center', rotation='vertical')
+        fig.text(0, 0.4, 'Original', va='center', rotation='vertical')
+        fig.text(0, 0.15, 'Reconstruction', va='center', rotation='vertical')
+        plt.tight_layout(pad=0.5)
+
+        plt.show()
+
+    def Q4_2(self):
+        for idx in range(1, 35, 1):
+            img = cv2.imread('./Q4_Image/'+str(idx)+'.jpg')
+            n_img = self.reconstruction(img)
+            # convert to gray
+            img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            n_img_gray = cv2.cvtColor(n_img, cv2.COLOR_BGR2GRAY)
+            n_img_gray = cv2.normalize(n_img_gray, None, 0, 255, cv2.NORM_MINMAX)
+            error = np.sum(np.absolute(img_gray-n_img_gray))
+            print('{}: {}'.format(idx, error))
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
